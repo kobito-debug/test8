@@ -1,0 +1,80 @@
+<resources>
+    <string name="app_name">test8</string>
+    <string name="rb_hardsee">見えにくい</string>
+    <string name="rb_easyenter">入りやすい</string>
+    <string name="rb_bad">治安が悪い</string>
+    <string name="rb_escape">避難できる</string>
+    <string name="rb_other">その他</string>
+    <string name="tv_select"><u>どれか一つ選んでください</u></string>
+    <string name="tv_detail"><u>詳細な情報</u></string>
+
+    <string name="tv_location"><u>位置情報</u></string>
+    <string name="bt_present">現在地</string>
+    <string name="bt_other_location">検索</string>
+    <string name="tv_comment"><u>コメント</u></string>
+    <string name="bt_post">投稿</string>
+    <string name="bt_input">セット</string>
+    <string name="bt_delete">投稿の削除</string>
+    <string name="tv_image"><u>写真を選択</u></string>
+    <string name="tv_camera">カメラで撮る：</string>
+    <string name="tv_gallery">ギャラリーから選ぶ：</string>
+    <string name="tv_confirm">入力確認</string>
+    <string name="dialog_confirm_ok">OK</string>
+    <string name="dialog_confirm_cancel">キャンセル</string>
+
+    <string name="menu_see_my_map">自分のマップを見る</string>
+    <string name="menu_see_our_map">みんなのマップを見る</string>
+    <string name="title_activity_maps">Map</string>
+
+    <string name="tv_username">名前</string>
+    <string name="bt_login">ログイン</string>
+    <string name="title_activity_all_post_maps">みんなのマップ</string>
+    <string name="title_activity_my_post_map">投稿の確認</string>
+    <string name="title_activity_all_post_map">みんなのマップ</string>
+    <string name="tv_password">パスワード</string>
+    <string name="tv_class">クラス</string>
+
+    <string name="tv_present">現在地</string>
+    <string name="title_activity_my_post_maps">Map</string>
+    <string name="title_activity_my_maps_test">Map</string>
+    <string name="title_activity_my_maps">Map</string>
+
+    <string name="info_window_detail"><u>詳細な情報：</u></string>
+    <string name="info_window_comment"><u>コメント：</u></string>
+    <string name="bt_emergency">緊急</string>
+    <string name="bt_clear">クリア</string>
+    <string name="menu_emergency">助けを呼ぶ</string>
+
+    <string name="tv_spinner">所属</string>
+    <string name="title_activity_organization">Map</string>
+    <string name="bt_edit">編集</string>
+    <string name="tv_image_2"><u>写真</u></string>
+    <string name="tv_other_comment"><u>コメントしてみよう！</u></string>
+    <string name="bt_update">コメント投稿</string>
+    <string name="tv_info_other"><u>他の人からのコメント</u></string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="title_activity_email_password">EmailPasswordActivity</string>
+    <string name="first_fragment_label">First Fragment</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <string name="hello_first_fragment">Hello first fragment</string>
+
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string-array name="list">
+        <item>個人</item>
+        <item>警察</item>
+        <item>住民ボランティア</item>
+        <item>自治体</item>
+        <item>その他</item>
+    </string-array>
+</resources>
