@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     RadioGroup rgSelect;
     public String username="taro";
     User user;
+    Post post;
     long maxid=0;
     DatabaseReference reff;
 
@@ -49,8 +50,9 @@ public class MainActivity extends AppCompatActivity {
         final String strBad = "例）落書きがされている、ゴミが捨てられている、ものが壊れている";
         final String strEscape = "例）子ども110番の家";
 
-        user=new User();
-        reff=FirebaseDatabase.getInstance().getReference().child("User");
+        //user=new User();
+        post=new Post();
+        reff=FirebaseDatabase.getInstance().getReference().child("Post");
         reff.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
@@ -170,17 +172,17 @@ public class MainActivity extends AppCompatActivity {
         Double image=0.0;
         String othercomment="";
 
-        user.setName(username);
-        user.setTitle(title);
-        user.setDetail(detail);
-        user.setLatitude(latitude);
-        user.setLongitude(longitude);
-        user.setComment(comment);
-        user.setImage(image);
+        post.setName(username);
+        post.setTitle(title);
+        post.setDetail(detail);
+        post.setLatitude(latitude);
+        post.setLongitude(longitude);
+        post.setComment(comment);
+        post.setImage(image);
        // user.setOtherComment(othercomment);
-        user.setUserId(sUserId);
+        post.setUserId(sUserId);
         //reff.push().setValue(user);
-        reff.child(String.valueOf(maxid+1)).setValue(user);
+        reff.child(String.valueOf(maxid+1)).setValue(post);
         Toast.makeText(MainActivity.this,"データベース登録完了",Toast.LENGTH_LONG).show();
         Intent intent =new Intent(MainActivity.this,MyPostMapsActivity.class);
         intent.putExtra("maxId",maxid);

@@ -26,8 +26,10 @@
     <string name="menu_see_our_map">みんなのマップを見る</string>
     <string name="title_activity_maps">Map</string>
 
-    <string name="tv_username">名前</string>
+    <string name="tv_username">メールアドレス</string>
     <string name="bt_login">ログイン</string>
+    <string name="bt_signup">登録</string>
+    <string name="bt_logout">ログアウト</string>
     <string name="title_activity_all_post_maps">みんなのマップ</string>
     <string name="title_activity_my_post_map">投稿の確認</string>
     <string name="title_activity_all_post_map">みんなのマップ</string>
@@ -68,6 +70,7 @@
     <string name="next">Next</string>
     <string name="previous">Previous</string>
     <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="edit">メールアドレスとパスワードを設定してください</string>
 
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string-array name="list">
