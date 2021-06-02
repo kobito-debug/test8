@@ -15,6 +15,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -32,11 +33,13 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity {
     private String title="";
     RadioGroup rgSelect;
-    public String username="taro";
     User user;
     Post post;
     long maxid=0;
-    DatabaseReference reff;
+    DatabaseReference reffpost;
+    private FirebaseAuth mAuth;
+    String userID;
+    String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,10 +53,10 @@ public class MainActivity extends AppCompatActivity {
         final String strBad = "例）落書きがされている、ゴミが捨てられている、ものが壊れている";
         final String strEscape = "例）子ども110番の家";
 
-        //user=new User();
+        //Postテーブル
         post=new Post();
-        reff=FirebaseDatabase.getInstance().getReference().child("Post");
-        reff.addValueEventListener(new ValueEventListener() {
+        reffpost=FirebaseDatabase.getInstance().getReference().child("Post");
+        reffpost.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
@@ -172,6 +175,12 @@ public class MainActivity extends AppCompatActivity {
         Double image=0.0;
         String othercomment="";
 
+        //UIDの取得
+        mAuth=FirebaseAuth.getInstance();
+        userID=mAuth.getCurrentUser().getUid();
+        username=mAuth.getCurrentUser().getDisplayName();
+        System.out.println(userID+":"+username);
+        //データ追加
         post.setName(username);
         post.setTitle(title);
         post.setDetail(detail);
@@ -180,10 +189,10 @@ public class MainActivity extends AppCompatActivity {
         post.setComment(comment);
         post.setImage(image);
        // user.setOtherComment(othercomment);
-        post.setUserId(sUserId);
+        post.setUserId(userID);
         //reff.push().setValue(user);
-        reff.child(String.valueOf(maxid+1)).setValue(post);
-        Toast.makeText(MainActivity.this,"データベース登録完了",Toast.LENGTH_LONG).show();
+        reffpost.child(String.valueOf(maxid+1)).setValue(post);
+        Toast.makeText(MainActivity.this,"投稿されました！",Toast.LENGTH_LONG).show();
         Intent intent =new Intent(MainActivity.this,MyPostMapsActivity.class);
         intent.putExtra("maxId",maxid);
         startActivity(intent);
@@ -213,24 +222,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
     public void onClearButtonClicked(View view){
-        //[テスト]データ取得処理
-        reff=FirebaseDatabase.getInstance().getReference("User");
-        reff.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                for(DataSnapshot data: snapshot.getChildren()){
-                    user=data.getValue(User.class);
-                    String a=user.getDetail();
-                    String b=user.getuserId();
-                    System.out.println(b+":"+a);
-                }
-            }
 
-            @Override
-            public void onCancelled(@NonNull @NotNull DatabaseError error) {
-                //データ取得失敗
-            }
-        });
     }
    }
 

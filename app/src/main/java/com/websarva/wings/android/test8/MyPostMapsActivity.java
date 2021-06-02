@@ -42,7 +42,7 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
     private String commentList[],otherList[];
     private Marker markerList[];
     private Double imageList[];
-    User user;
+    Post post;
     String title;
     String detail;
     LatLng location;
@@ -155,7 +155,7 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         LatLng present=new LatLng(platitude,plongitude);
-        LatLng test=new LatLng(137,147);
+        LatLng test=new LatLng(37,147);
         // Add a marker in Sydney and move the camera
         //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(test,7));
@@ -166,14 +166,14 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
             @Override
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
                 for(DataSnapshot data: snapshot.getChildren()){
-                    user=data.getValue(User.class);
-                    title=user.getTitle();
-                    detail=user.getDetail();
-                    Double image=user.getImage();
-                    Double latitude=user.getLatitude();
-                    Double longitude=user.getLongitude();
+                    post=data.getValue(Post.class);
+                    title=post.getTitle();
+                    detail=post.getDetail();
+                    Double image=post.getImage();
+                    Double latitude=post.getLatitude();
+                    Double longitude=post.getLongitude();
                     location=new LatLng(latitude,longitude);
-                    String comment=user.getComment();
+                    String comment=post.getComment();
                     commentList[i]=comment;
                     imageList[i]=image;
                     i++;

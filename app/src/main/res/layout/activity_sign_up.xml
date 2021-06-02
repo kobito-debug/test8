@@ -7,33 +7,76 @@
     tools:context=".SignUpActivity"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/edit"/>
+        <EditText
+            android:id="@+id/etDisplayname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="displayname"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/edit"/>
-    <EditText
-        android:id="@+id/etUpUsername"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="email"
-        android:inputType="textEmailAddress"/>
-   <EditText
-       android:id="@+id/etUpPassword"
-       android:layout_width="match_parent"
-       android:layout_height="wrap_content"
-       android:hint="password"
-       android:inputType="textPassword"/>
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/btSignUp2"
-        android:layout_gravity="center"
-        android:text="新規登録"/>
-    <Button
-        android:id="@+id/btBack"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="すでにアカウント登録をしている方"/>
+        <EditText
+            android:id="@+id/etUpUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="email"
+            android:inputType="textEmailAddress"/>
+       <EditText
+           android:id="@+id/etUpPassword"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:hint="password"
+           android:inputType="textPassword"/>
+        <TextView
+            android:id="@+id/tvClass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/tv_class"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/etPassword" />
+        <Spinner
+            android:id="@+id/sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvClass"
+            android:entries="@array/list"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/btSignUp2"
+            android:layout_gravity="center"
+            android:text="新規登録"/>
+        <Button
+            android:id="@+id/btBack"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="すでにアカウント登録をしている方"/>
+        </LinearLayout>
+
+
+        <ProgressBar
+            android:id="@+id/pbSignup"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:visibility="gone"/>
+    </RelativeLayout>
+
 
 </LinearLayout>
