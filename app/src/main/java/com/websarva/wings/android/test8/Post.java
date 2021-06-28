@@ -4,7 +4,7 @@ public class Post {
     public String name;
     public String title;
     public String detail;
-    public Double image;
+    public String image;
     public Double latitude;
     public Double longitude;
     public String comment;
@@ -32,8 +32,8 @@ public class Post {
     public void setTitle(String title){
         this.title=title;
     }
-    public Double getImage(){return image;}
-    public void setImage(double image){
+    public String getImage(){return image;}
+    public void setImage(String image){
         this.image=image;
     }
     public Double getLatitude(){return latitude;}

@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -26,6 +27,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -36,12 +39,12 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
     private long maxId;
     private double platitude;
     private double plongitude;
-    private DatabaseReference reff;
+    private DatabaseReference reff,mImageDataref;
     private TextView tvmapTitle,tvmapDetail,tvmapComment,tvInfoOther;
     private ImageView ivMapCamera;
     private String commentList[],otherList[];
     private Marker markerList[];
-    private Double imageList[];
+    private String imageList[];
     Post post;
     String title;
     String detail;
@@ -66,7 +69,7 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
         commentList=new String[100];
         otherList=new String[100];
         markerList=new Marker[100];
-        imageList=new Double[100];
+        imageList=new String[100];
     }
 
     public void setMarker(String title,String detail,LatLng location){
@@ -75,19 +78,31 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
         options.position(location);
         options.title(title);
         options.snippet(detail);
+        System.out.println("position:"+location+",title:"+title+",detail:"+detail);
         BitmapDescriptor icon;
-        if(title.equals("見えにくい場所")){
-            icon=BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
-        }else if(title.equals("入りやすい場所")){
-            icon=BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
-        }else if(title.equals("治安が悪い場所")){
-            icon=BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE);
-        }else if(title.equals("避難できる場所")){
-            icon=BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
-        }else{
-            icon=BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
+        switch (title){
+            case "見えにくい場所":
+                icon= BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
+                options.icon(icon);
+                break;
+            case "入りやすい場所":
+                icon=BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
+                options.icon(icon);
+                break;
+            case "治安が悪い場所":
+                icon=BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE);
+                options.icon(icon);
+                break;
+            case "避難できる場所":
+                icon=BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
+                options.icon(icon);
+                break;
+            case "その他":
+                icon=BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
+                options.icon(icon);
+                break;
         }
-        options.icon(icon);
+        //options.icon(icon);
         Marker marker=mMap.addMarker(options);
         markerList[i-1]=marker;
         marker.showInfoWindow();
@@ -123,20 +138,7 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
                     //imageもいれる
                 }
             }
-            //アイコンを種類別に色分け
-            BitmapDescriptor icon;
-            switch (marker.getTitle()){
-                case "見えにくい場所":
-                    icon= BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
-                case "入りやすい場所":
-                    icon=BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
-                case "治安が悪い場所":
-                    icon=BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE);
-                case "避難できる場所":
-                    icon=BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
-                case "その他":
-                    icon=BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
-            }
+            
             tvmapTitle.setText(marker.getTitle());
             tvmapDetail.setText(marker.getSnippet());
         }
@@ -169,7 +171,7 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
                     post=data.getValue(Post.class);
                     title=post.getTitle();
                     detail=post.getDetail();
-                    Double image=post.getImage();
+                    String image=post.getImage();
                     Double latitude=post.getLatitude();
                     Double longitude=post.getLongitude();
                     location=new LatLng(latitude,longitude);
@@ -184,6 +186,24 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
             @Override
             public void onCancelled(@NonNull @NotNull DatabaseError error) {
                 //データ取得失敗
+                Toast.makeText(MyPostMapsActivity.this,"データ取得に失敗しました",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        //Storageから画像取得処理
+        mImageDataref =FirebaseDatabase.getInstance().getReference("uploads");
+        mImageDataref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                for(DataSnapshot postSnapshot : snapshot.getChildren()){
+                    Upload upload=postSnapshot.getValue(Upload.class);
+                    //リストにuploadを入れる
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+                Toast.makeText(MyPostMapsActivity.this,"画像の取得に失敗しました",Toast.LENGTH_SHORT).show();
             }
         });
 

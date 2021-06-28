@@ -1,34 +1,56 @@
 package com.websarva.wings.android.test8;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.StorageTask;
+import com.google.firebase.storage.UploadTask;
 
 import org.jetbrains.annotations.NotNull;
-import org.w3c.dom.Text;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.UUID;
+import java.io.BufferedInputStream;
+import java.sql.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 public class MainActivity extends AppCompatActivity {
     private String title="";
@@ -40,6 +62,22 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     String userID;
     String username;
+    private static final int PICK_IMAGE_REQUEST=1;
+    private static final int REQUEST_GALLERY=0;
+    private static final int RESULT_CAMERA=1001;
+    private ImageView imageView;
+    private String path;
+
+    private Uri mImageUri;
+    private StorageReference mStorageref;
+    private DatabaseReference stDataref;
+    private ProgressBar progressBar;
+    private StorageTask mUploadTask;
+
+    private String image;
+    Button btPost;
+    private int clickCount=0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,13 +108,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button btPost = findViewById(R.id.btPost);
+        mStorageref= FirebaseStorage.getInstance().getReference("Uploads");
+        progressBar=findViewById(R.id.pbMain);
+        btPost = findViewById(R.id.btPost);
+        //btPost.setEnabled(false);
         btPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onPostClicked(view);
             }
         });
+        stDataref=FirebaseDatabase.getInstance().getReference("Uploads");
 
         Button btPresent = findViewById(R.id.btPresent);
         btPresent.setOnClickListener(new View.OnClickListener() {
@@ -118,6 +160,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button btImageupload=findViewById(R.id.btImageupload);
+        btImageupload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                uploadFile();
+                clickCount=1;
+            }
+        });
+
         rgSelect = findViewById(R.id.rgSelect);
         //int checkedId=rgSelect.getCheckedRadioButtonId();
         rgSelect.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -156,7 +207,6 @@ public class MainActivity extends AppCompatActivity {
 
     //入力内容をデータベースに登録
     public void onPostClicked(View View){
-        String sUserId= UUID.randomUUID().toString();
         //id取得。Othercommentとimageもやる。
         TextView tvLatitude=findViewById(R.id.tvLatitude);
         TextView tvLongitude=findViewById(R.id.tvLongitude);
@@ -172,34 +222,184 @@ public class MainActivity extends AppCompatActivity {
         }
         String detail=etDetail.getText().toString();
         String comment=etComment.getText().toString();
-        Double image=0.0;
+        //Double image=0.0;
         String othercomment="";
+        image=String.valueOf(mImageUri);
+        System.out.println("image="+image);
+        if(title.equals("") || detail.equals("") || latitude==0.0 || longitude==0.0 || clickCount<1 ){
+            Toast.makeText(MainActivity.this, "入力が終わっていません", Toast.LENGTH_SHORT).show();
+        }else{
+            //UIDの取得
+            mAuth=FirebaseAuth.getInstance();
+            userID=mAuth.getCurrentUser().getUid();
+            username=mAuth.getCurrentUser().getDisplayName();
+            System.out.println(userID+":"+username);
+            //データ追加
+            post.setName(username);
+            post.setTitle(title);
+            post.setDetail(detail);
+            post.setLatitude(latitude);
+            post.setLongitude(longitude);
+            post.setComment(comment);
 
-        //UIDの取得
-        mAuth=FirebaseAuth.getInstance();
-        userID=mAuth.getCurrentUser().getUid();
-        username=mAuth.getCurrentUser().getDisplayName();
-        System.out.println(userID+":"+username);
-        //データ追加
-        post.setName(username);
-        post.setTitle(title);
-        post.setDetail(detail);
-        post.setLatitude(latitude);
-        post.setLongitude(longitude);
-        post.setComment(comment);
-        post.setImage(image);
-       // user.setOtherComment(othercomment);
-        post.setUserId(userID);
-        //reff.push().setValue(user);
-        reffpost.child(String.valueOf(maxid+1)).setValue(post);
-        Toast.makeText(MainActivity.this,"投稿されました！",Toast.LENGTH_LONG).show();
-        Intent intent =new Intent(MainActivity.this,MyPostMapsActivity.class);
-        intent.putExtra("maxId",maxid);
-        startActivity(intent);
+            if(image==null){
+                image="null";
+            }
+            post.setImage(image);
+            // user.setOtherComment(othercomment);
+            post.setUserId(userID);
+            //reff.push().setValue(user);
+            reffpost.child(String.valueOf(maxid+1)).setValue(post);
+            Toast.makeText(MainActivity.this,"投稿されました！",Toast.LENGTH_LONG).show();
+            Intent intent =new Intent(MainActivity.this,MyPostMapsActivity.class);
+            intent.putExtra("maxId",maxid);
+            startActivity(intent);
+        }
+    }
+    private String getFileExtension(Uri uri){
+        ContentResolver cr =getContentResolver();
+        MimeTypeMap mime=MimeTypeMap.getSingleton();
+        return mime.getExtensionFromMimeType(cr.getType(uri));
     }
 
-    private void insertData(SQLiteDatabase db, String title, String Detail, byte[] image, Double Latitude, Double Longitude, String Comment, String date, String time){
+    //画像をStorageに入れる
+    private void uploadFile(){
+        if(mImageUri!=null){
+            StorageReference fileReference=mStorageref.child(System.currentTimeMillis()+"."+getFileExtension(mImageUri));
+            stDataref=FirebaseDatabase.getInstance().getReference("uploads");
+            progressBar.setVisibility(View.VISIBLE);
+            fileReference.putFile(mImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Handler handler=new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setProgress(0);
+                        }
+                    },500);
+                    Toast.makeText(MainActivity.this,"画像のアップロードに成功しました",Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.GONE);
+                    String DateTime=getNowDate()+getNowTime();
+                    //image=taskSnapshot.getMetadata().getReference().getDownloadUrl().toString();
+                    Upload upload=new Upload(DateTime,taskSnapshot.getMetadata().getReference().getDownloadUrl().toString());
+                    String uploadId=stDataref.push().getKey();
+                    stDataref.child(uploadId).setValue(upload);
+                    //reffpost.child(String.valueOf(maxid+1)).setValue(post);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull @NotNull Exception e) {
+                    Toast.makeText(MainActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
 
+                }
+            }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onProgress(@NonNull @NotNull UploadTask.TaskSnapshot snapshot) {
+                    double progress=(100.0*snapshot.getBytesTransferred()/snapshot.getTotalByteCount());
+                    progressBar.setProgress((int)progress);
+                }
+            });
+        }else{
+            Toast.makeText(this,"No file selected",Toast.LENGTH_SHORT).show();
+        }
+    }
+    //ギャラリーアイコンをクリックしたとき
+    public void onGyarallyClicked(View view){
+        imageView=findViewById(R.id.ivGallery);
+        Intent intent=new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(intent,REQUEST_GALLERY);
+        //openFileChooser();
+    }
+    //カメラアイコンをクリックしたとき
+    public void onCameraImageClick(View view){
+        //WRITE_EXTERNAL_STORAGEの許可が下りていないなら…
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            //WRITE_EXTERNAL_STORAGEの許可を求めるダイアログを表示。その際、リクエストコードを2000に設定。
+            String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            ActivityCompat.requestPermissions(this, permissions, 2000);
+            return;
+        }
+
+        //日時データを「yyyyMMddHHmmss」の形式に整形するフォーマッタを生成。
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        //現在の日時を取得。
+        Date now = new Date(System.currentTimeMillis());
+        //取得した日時データを「yyyyMMddHHmmss」形式に整形した文字列を生成。
+        String nowStr = dateFormat.format(now);
+        //ストレージに格納する画像のファイル名を生成。ファイル名の一意を確保するためにタイムスタンプの値を利用。
+        String fileName = "UseCameraActivityPhoto_" + nowStr +".jpg";
+
+        //ContentValuesオブジェクトを生成。
+        ContentValues values = new ContentValues();
+        //画像ファイル名を設定。
+        values.put(MediaStore.Images.Media.TITLE, fileName);
+        //画像ファイルの種類を設定。
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+
+        //ContentResolverオブジェクトを生成。
+        ContentResolver resolver = getContentResolver();
+        //ContentResolverを使ってURIオブジェクトを生成。
+        mImageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        //Intentオブジェクトを生成。
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        //Extra情報として_imageUriを設定。
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
+        startActivityForResult(intent,RESULT_CAMERA);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+       //カメラアプリからの戻りでかつ撮影成功の場合
+        if (requestCode == RESULT_CAMERA && resultCode == RESULT_OK) {
+            //mImageUri=null;
+            //Bitmap bitmap= (Bitmap) data.getExtras().get("data");
+            /*if(data!=null){
+                mImageUri=data.getData();
+            }*/
+            imageView=findViewById(R.id.ivCamera);
+            imageView.setImageURI(mImageUri);
+            //imageView.setImageBitmap(bitmap);
+            //imageByte=imageViewToByte(ivCamera);
+        }
+        //ギャラリー
+        if(requestCode==REQUEST_GALLERY && resultCode==RESULT_OK){
+            mImageUri=null;
+            if(data!=null){
+                mImageUri=data.getData();
+            }
+            try {
+                BufferedInputStream inputStream = new BufferedInputStream(getContentResolver().openInputStream(data.getData()));
+                Bitmap image = BitmapFactory.decodeStream(inputStream);
+                int width=image.getWidth()/4;
+                int height=image.getHeight()/4;
+                Bitmap image2=Bitmap.createScaledBitmap(image,width,height,false);
+                imageView.setImageBitmap(image2);
+                //imageByte=imageViewToByte(imageView);
+            } catch (Exception e) {
+
+            }
+            // ContentResolver経由でファイルパスを取得
+            ContentResolver cr = getContentResolver();
+            String[] columns = {
+                    MediaStore.Images.Media.DATA
+            };
+            Cursor c = cr.query(data.getData(), columns, null, null, null);
+            int column_index = c.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            c.moveToFirst();
+            path = c.getString(column_index);
+            Log.v("test", "path=" + path);
+        }
+    }
+
+    private void openFileChooser(){
+        Intent intent=new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(intent,PICK_IMAGE_REQUEST);
     }
     public void onMapShowCurrentButtonClick(View view){
 
@@ -224,7 +424,19 @@ public class MainActivity extends AppCompatActivity {
     public void onClearButtonClicked(View view){
 
     }
+    public static String getNowDate(){
+        final DateFormat df=new SimpleDateFormat("yyyyMMdd");
+        final Date date=new Date(System.currentTimeMillis());
+        return df.format(date);
+    }
+
+    public static String getNowTime(){
+        final DateFormat df=new SimpleDateFormat("HHmmss");
+        final Date time=new Date(System.currentTimeMillis());
+        return df.format(time);
+    }
    }
+
 
 /*
 サインイン・サインアップ処理参考
