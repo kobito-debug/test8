@@ -81,13 +81,15 @@ public class MainActivity extends AppCompatActivity {
     private String image;
     Button btPost;
     private int clickCount=0;
+    String extraname;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        Intent intent=getIntent();
+        extraname=intent.getStringExtra("name");
         final TextView tvExample = findViewById(R.id.tvExample);
         //本を参考に
         final String strHardSee = "例）街灯が少なくて夜間暗くなる、人通りが少ない";
@@ -97,6 +99,11 @@ public class MainActivity extends AppCompatActivity {
         final String strAction="例）清掃活動、花壇の水やり";
         maxid=0;
 
+        //UIDの取得
+        mAuth=FirebaseAuth.getInstance();
+        userID=mAuth.getCurrentUser().getUid();
+        username=mAuth.getCurrentUser().getDisplayName();
+        System.out.println(userID+":"+username);
         //Postテーブル
         post=new Post();
         reffpost=FirebaseDatabase.getInstance().getReference().child("Post");
@@ -243,11 +250,6 @@ public class MainActivity extends AppCompatActivity {
         if(title.equals("") || detail.equals("") || latitude==0.0 || longitude==0.0 || clickCount<1 ){
             Toast.makeText(MainActivity.this, "入力が終わっていません", Toast.LENGTH_SHORT).show();
         }else{
-            //UIDの取得
-            mAuth=FirebaseAuth.getInstance();
-            userID=mAuth.getCurrentUser().getUid();
-            username=mAuth.getCurrentUser().getDisplayName();
-            System.out.println(userID+":"+username);
             //データ追加
             post.setName(username);
             post.setTitle(title);
@@ -469,11 +471,16 @@ public class MainActivity extends AppCompatActivity {
         switch (itemId){
             case R.id.menuSeeMyMap:
                 Intent mypostIntent=new Intent(MainActivity.this,MyPostMapsActivity.class);
-                //Intent mypostIntent=new Intent(MainActivity.this,Information.class);
+                mypostIntent.putExtra("name",username);
                 startActivity(mypostIntent);
                 break;
             case R.id.menuInformation:
-                //Intent informationIntent=new Intent(MainActivity.this,Information.class);
+                Intent informationIntent=new Intent(MainActivity.this,Information.class);
+                startActivity(informationIntent);
+                break;
+            case R.id.manuSeeAllMap:
+                Intent allpostIntent=new Intent(MainActivity.this,AllMapsActivity.class);
+                startActivity(allpostIntent);
                 break;
         }
         return super.onOptionsItemSelected(item);

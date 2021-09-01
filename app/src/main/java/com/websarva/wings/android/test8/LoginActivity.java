@@ -102,6 +102,7 @@ public class LoginActivity extends AppCompatActivity {
                 if(task.isSuccessful()){
                     Intent intent=new Intent(LoginActivity.this,MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtra("name",email);
                     startActivity(intent);
                 }else{
                     Toast.makeText(getApplicationContext(),task.getException().getMessage(),Toast.LENGTH_SHORT).show();

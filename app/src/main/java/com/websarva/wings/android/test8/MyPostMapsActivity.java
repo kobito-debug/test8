@@ -48,26 +48,16 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
     private GoogleMap mMap;
     private int i=1;
     private long maxId;
-    private double platitude;
-    private double plongitude;
-    private DatabaseReference reff,imagereff;
+    private DatabaseReference reff;
     private StorageReference mImageDataref;
-    private TextView tvmapTitle,tvmapDetail,tvmapComment,tvInfoOther;
-    private ImageView ivMapCamera;
     private Marker[] markerList;
-    //private List<String> commentList,otherList,imageList;
     private String[] commentList,imageList;
     private Bitmap[]  bitmapList;
     Post post;
-   /* String title;
-    String detail;
-    LatLng location;
-    String image;
-    String comment;*/
-    String imageName,imageUrl;
-    private List<Upload> mUploads;
     Bitmap bitmap;
     private int n=0;
+    String username;
+    int count=1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,12 +67,9 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        tvmapTitle=findViewById(R.id.tvmapTitle);
-        tvmapDetail=findViewById(R.id.tvmapDetail);
-        tvmapComment=findViewById(R.id.tvmapComment);
-        tvInfoOther=findViewById(R.id.tvInfoOther2);
-        ivMapCamera=findViewById(R.id.ivMapCamera);
         Intent intent=getIntent();
+        username=intent.getStringExtra("name");
+        Toast.makeText(MyPostMapsActivity.this,"ようこそ"+username,Toast.LENGTH_SHORT).show();
         maxId=intent.getLongExtra("maxId",0);
         commentList=new String[100];
         //otherList=new ArrayList<String>();
@@ -129,10 +116,13 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
                 options.icon(icon);
                 break;
         }
-        Toast.makeText(MyPostMapsActivity.this,n+"個目のマーカー設置＿setMarker",Toast.LENGTH_SHORT).show();
         Marker marker=mMap.addMarker(options);
         markerList[n-1]=marker;
         marker.showInfoWindow();
+        if(n==count){
+            Toast.makeText(MyPostMapsActivity.this,"マーカーの設置が終わりました",Toast.LENGTH_LONG).show();
+        }
+        count++;
     }
 
     private class CustomInfoAdapter implements GoogleMap.InfoWindowAdapter{
@@ -165,8 +155,6 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
             }
             tvmapTitle.setText(marker.getTitle());
             tvmapDetail.setText(marker.getSnippet());
-            Toast.makeText(MyPostMapsActivity.this,n+"個目のマーカー設置＿render",Toast.LENGTH_SHORT).show();
-            //System.out.println(n+"個目のマーカー設置");
         }
     }
 
@@ -182,7 +170,7 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        LatLng present=new LatLng(platitude,plongitude);
+       // LatLng present=new LatLng(platitude,plongitude);
         LatLng test=new LatLng(35.68944,139.69167);
         // Add a marker in Sydney and move the camera
         //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
@@ -196,17 +184,20 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
                 for(DataSnapshot data: snapshot.getChildren()){
                     post=data.getValue(Post.class);
                     assert post != null;
-                    String title=post.getTitle();
-                    String detail=post.getDetail();
-                    String image=post.getImage();
-                    double latitude=post.getLatitude();
-                    double longitude=post.getLongitude();
-                    LatLng location=new LatLng(latitude,longitude);
-                    String comment=post.getComment();
-                    commentList[i]=comment;
-                    imageList[i]=image;
-                    i++;
-                    StoragePicked(image,title,detail,comment,location);
+                    String name=post.getName();
+                    if(name.equals(username)){
+                        String title=post.getTitle();
+                        String detail=post.getDetail();
+                        String image=post.getImage();
+                        double latitude=post.getLatitude();
+                        double longitude=post.getLongitude();
+                        LatLng location=new LatLng(latitude,longitude);
+                        String comment=post.getComment();
+                        commentList[i]=comment;
+                        imageList[i]=image;
+                        i++;
+                        StoragePicked(image,title,detail,comment,location);
+                    }
                 }
             }
 

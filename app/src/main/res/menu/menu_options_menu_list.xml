@@ -6,6 +6,10 @@
         app:showAsAction="never"
         android:title="自分のマップを見る"/>
     <item
+        android:id="@+id/manuSeeAllMap"
+        app:showAsAction="never"
+        android:title="みんなのマップを見る"/>
+    <item
         android:id="@+id/menuInformation"
         app:showAsAction="never"
         android:title="お知らせ"/>
