@@ -55,7 +55,8 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
     private TextView tvmapTitle,tvmapDetail,tvmapComment,tvInfoOther;
     private ImageView ivMapCamera;
     private Marker[] markerList;
-    private List<String> commentList,otherList,imageList;
+    //private List<String> commentList,otherList,imageList;
+    private String[] commentList,imageList;
     private Bitmap[]  bitmapList;
     Post post;
    /* String title;
@@ -83,9 +84,9 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
         ivMapCamera=findViewById(R.id.ivMapCamera);
         Intent intent=getIntent();
         maxId=intent.getLongExtra("maxId",0);
-        commentList=new ArrayList<String>();
-        otherList=new ArrayList<String>();
-        imageList=new ArrayList<String>();
+        commentList=new String[100];
+        //otherList=new ArrayList<String>();
+        imageList=new String[100];
         markerList=new Marker[100];
         bitmapList=new Bitmap[100];
     }
@@ -159,7 +160,7 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
             for(int a=0;a<100;a++){
                 if(marker.equals(markerList[a])){
                     ivMapCamera.setImageBitmap(bitmapList[a]);
-                    tvmapComment.setText(commentList.get(a));
+                    tvmapComment.setText(commentList[a]);
                 }
             }
             tvmapTitle.setText(marker.getTitle());
@@ -202,11 +203,9 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
                     double longitude=post.getLongitude();
                     LatLng location=new LatLng(latitude,longitude);
                     String comment=post.getComment();
-                    //commentList[i]=comment;
-                    //imageList[i]=image;
+                    commentList[i]=comment;
+                    imageList[i]=image;
                     i++;
-                    commentList.add(comment);
-                    imageList.add(image);
                     StoragePicked(image,title,detail,comment,location);
                 }
             }
