@@ -4,6 +4,8 @@
     <string name="rb_easyenter">入りやすい</string>
     <string name="rb_bad">治安が悪い</string>
     <string name="rb_escape">避難できる</string>
+    <string name="rb_attraction">まちの残したい場所</string>
+    <string name="rb_action">安全への取り組み</string>
     <string name="rb_other">その他</string>
     <string name="tv_select"><u>どれか一つ選んでください</u></string>
     <string name="tv_detail"><u>詳細な情報</u></string>
@@ -73,6 +75,7 @@
     <string name="edit">メールアドレスとパスワードを設定してください</string>
 
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="title_activity_all_maps">Map</string>
     <string-array name="list">
         <item>個人</item>
         <item>警察</item>

@@ -52,6 +52,18 @@
                     android:text="@string/rb_escape"
                     android:layout_marginRight="10dp"/>
                 <RadioButton
+                    android:id="@+id/rbAttraction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/rb_attraction"
+                    android:layout_marginRight="10dp"/>
+                <RadioButton
+                    android:id="@+id/rbAction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/rb_action"
+                    android:layout_marginRight="10dp"/>
+                <RadioButton
                     android:id="@+id/rbOther"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

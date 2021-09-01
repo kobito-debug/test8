@@ -18,6 +18,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
@@ -62,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     String userID;
     String username;
+    String imageName;
     private static final int PICK_IMAGE_REQUEST=1;
     private static final int REQUEST_GALLERY=0;
     private static final int RESULT_CAMERA=1001;
@@ -90,6 +94,8 @@ public class MainActivity extends AppCompatActivity {
         final String strEasyEnter = "例）入口が広い、柵がない、セキュリティが設置されていない";
         final String strBad = "例）落書きがされている、ゴミが捨てられている、ものが壊れている";
         final String strEscape = "例）子ども110番の家";
+        final String strAction="例）清掃活動、花壇の水やり";
+        maxid=0;
 
         //Postテーブル
         post=new Post();
@@ -109,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mStorageref= FirebaseStorage.getInstance().getReference("Uploads");
-        progressBar=findViewById(R.id.pbMain);
+        progressBar=(ProgressBar)findViewById(R.id.pbMain);
         btPost = findViewById(R.id.btPost);
         //btPost.setEnabled(false);
         btPost.setOnClickListener(new View.OnClickListener() {
@@ -195,6 +201,14 @@ public class MainActivity extends AppCompatActivity {
                         tvExample.setText(strEscape);
                         title="避難できる場所";
                         break;
+                    case R.id.rbAttraction:
+                        tvExample.setText("");
+                        title="まちの残したい場所";
+                        break;
+                    case R.id.rbAction:
+                        tvExample.setText(strAction);
+                        title="安全への取り組み";
+                        break;
                     case R.id.rbOther:
                         tvExample.setText("");
                         title="その他";
@@ -241,19 +255,19 @@ public class MainActivity extends AppCompatActivity {
             post.setLatitude(latitude);
             post.setLongitude(longitude);
             post.setComment(comment);
-
             if(image==null){
                 image="null";
             }
-            post.setImage(image);
+            post.setImage(imageName);
             // user.setOtherComment(othercomment);
             post.setUserId(userID);
             //reff.push().setValue(user);
+            maxid=maxid+1;
             reffpost.child(String.valueOf(maxid+1)).setValue(post);
             Toast.makeText(MainActivity.this,"投稿されました！",Toast.LENGTH_LONG).show();
-            Intent intent =new Intent(MainActivity.this,MyPostMapsActivity.class);
-            intent.putExtra("maxId",maxid);
-            startActivity(intent);
+           // Intent intent =new Intent(MainActivity.this,MyPostMapsActivity.class);
+            //intent.putExtra("maxId",maxid);
+            //startActivity(intent);
         }
     }
     private String getFileExtension(Uri uri){
@@ -265,7 +279,9 @@ public class MainActivity extends AppCompatActivity {
     //画像をStorageに入れる
     private void uploadFile(){
         if(mImageUri!=null){
-            StorageReference fileReference=mStorageref.child(System.currentTimeMillis()+"."+getFileExtension(mImageUri));
+            //StorageReference fileReference=mStorageref.child(System.currentTimeMillis()+"."+getFileExtension(mImageUri));
+            imageName=getNowDateTime();
+            StorageReference fileReference=mStorageref.child(imageName+"."+getFileExtension(mImageUri));
             stDataref=FirebaseDatabase.getInstance().getReference("uploads");
             progressBar.setVisibility(View.VISIBLE);
             fileReference.putFile(mImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -280,9 +296,8 @@ public class MainActivity extends AppCompatActivity {
                     },500);
                     Toast.makeText(MainActivity.this,"画像のアップロードに成功しました",Toast.LENGTH_SHORT).show();
                     progressBar.setVisibility(View.GONE);
-                    String DateTime=getNowDate()+getNowTime();
                     //image=taskSnapshot.getMetadata().getReference().getDownloadUrl().toString();
-                    Upload upload=new Upload(DateTime,taskSnapshot.getMetadata().getReference().getDownloadUrl().toString());
+                    Upload upload=new Upload(imageName,taskSnapshot.getMetadata().getReference().getDownloadUrl().toString());
                     String uploadId=stDataref.push().getKey();
                     stDataref.child(uploadId).setValue(upload);
                     //reffpost.child(String.valueOf(maxid+1)).setValue(post);
@@ -435,7 +450,37 @@ public class MainActivity extends AppCompatActivity {
         final Date time=new Date(System.currentTimeMillis());
         return df.format(time);
     }
+
+    //現在の日時を返す
+    public static String getNowDateTime(){
+        String now=getNowDate()+getNowTime();
+        return now;
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        MenuInflater inflater=getMenuInflater();
+        inflater.inflate(R.menu.menu_options_menu_list,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        int itemId=item.getItemId();
+        switch (itemId){
+            case R.id.menuSeeMyMap:
+                Intent mypostIntent=new Intent(MainActivity.this,MyPostMapsActivity.class);
+                //Intent mypostIntent=new Intent(MainActivity.this,Information.class);
+                startActivity(mypostIntent);
+                break;
+            case R.id.menuInformation:
+                //Intent informationIntent=new Intent(MainActivity.this,Information.class);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
    }
+
+
 
 
 /*
