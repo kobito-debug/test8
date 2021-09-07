@@ -17,64 +17,30 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/tv_select"
-                android:layout_marginBottom="8dp"/>
-            <RadioGroup
-                android:id="@+id/rgSelect"
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:background="#9999cc"
+                    android:text="@string/tv_select"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp" />
+            <Spinner
+                android:id="@+id/sptitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <RadioButton
-                    android:id="@+id/rbHardSee"
+                android:entries="@array/titlelist" />
+
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/rb_hardsee"
-                    android:layout_marginRight="10dp"/>
-                <RadioButton
-                    android:id="@+id/rbEasyEnter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/rb_easyenter"
-                    android:layout_marginRight="10dp"/>
-                <RadioButton
-                    android:id="@+id/rbBad"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/rb_bad"
-                    android:layout_marginRight="10dp"/>
-                <RadioButton
-                    android:id="@+id/rbEscape"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/rb_escape"
-                    android:layout_marginRight="10dp"/>
-                <RadioButton
-                    android:id="@+id/rbAttraction"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/rb_attraction"
-                    android:layout_marginRight="10dp"/>
-                <RadioButton
-                    android:id="@+id/rbAction"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/rb_action"
-                    android:layout_marginRight="10dp"/>
-                <RadioButton
-                    android:id="@+id/rbOther"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/rb_other"/>
-            </RadioGroup>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/tv_detail"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="5dp"/>
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="5dp"
+                    android:background="#9999cc"
+                    android:text="@string/tv_detail"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp" />
             <EditText
                 android:id="@+id/etDetail"
                 android:layout_width="match_parent"
@@ -85,16 +51,22 @@
                 android:layout_height="wrap_content"
                 android:text=""/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="@string/tv_image"
-                android:textStyle="bold"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/tv_camera"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="5dp"
+                    android:background="#9999cc"
+                    android:text="@string/tv_image"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tv_camera"
+                    android:textColor="#000000" />
             <ImageView
                 xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/ivCamera"
@@ -103,25 +75,30 @@
                 android:onClick="onCameraImageClick"
                 app:srcCompat="@android:drawable/ic_menu_camera"
                 android:layout_gravity="center"
+                android:scaleType="fitStart"
                 />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/tv_gallery"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tv_gallery"
+                    android:textColor="#000000" />
             <ImageView
                 android:id="@+id/ivGallery"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="onGyarallyClicked"
                 android:layout_gravity="center"
-                android:scaleType="centerCrop"
+                android:scaleType="fitStart"
                 app:srcCompat="@android:drawable/ic_menu_gallery"/>
+
                 <Button
                     android:id="@+id/btImageupload"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:text="画像アップロード"
-                    android:layout_gravity="center"/>
+                    android:textSize="10sp" />
                 <ProgressBar
                     android:id="@+id/pbMain"
                     android:layout_width="wrap_content"
@@ -130,45 +107,94 @@
                     android:visibility="gone"
                     android:layout_gravity="center_horizontal|center_vertical"/>
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:background="#9999cc"
+                    android:text="@string/tv_location"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/tv_location"
-                android:layout_marginBottom="5dp"/>
-            <Button
-                android:id="@+id/btPresent"
-                android:text="@string/bt_present"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:text="いずれかの方法で位置情報を入力してください"
+                android:layout_marginBottom="8dp"
+                android:textSize="5pt"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="A.現在地を取得する："
+                    android:textColor="#000000" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="8dp">
+
+                    <Button
+                        android:id="@+id/btPresent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:enabled="false"
+                        android:text="@string/bt_present"
+                        android:textSize="10sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="※ボタンに色がついてから押してください"/>
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="B.地点を検索して入力する："
+                    android:textColor="#000000" />
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp"
+                android:layout_gravity="center">
 
                 <EditText
                     android:id="@+id/etLocation"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"/>
 
                 <Button
                     android:id="@+id/btSearch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/bt_other_location" />
+                    android:text="@string/bt_other_location"
+                    android:textSize="10sp" />
             </LinearLayout>
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="緯度"/>
+                    android:text="C.緯度経度を入力する："
+                    android:textColor="#000000" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="緯度" />
 
                 <EditText
                     android:id="@+id/etSetLatitude"
-                    android:layout_width="wrap_content"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
-                    android:inputType="number|numberDecimal" />
+                    android:inputType="number|numberDecimal"
+                    android:layout_marginBottom="5dp"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -176,73 +202,83 @@
 
                 <EditText
                     android:id="@+id/etSetLongitude"
-                    android:layout_width="wrap_content"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:inputType="number|numberDecimal" />
+
                 <Button
                     android:id="@+id/btInput"
-                    android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
-                    android:text="@string/bt_input"/>
+                    android:layout_height="wrap_content"
+                    android:text="入力"
+                    android:textSize="10sp" />
             </LinearLayout>
-            <Button
-                android:id="@+id/btShowMap"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="地図表示"/>
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="緯度"/>
+                    android:text="場所を確認する："
+                    android:textColor="#000000"
+                    android:layout_marginTop="5dp"/>
+
+                <Button
+                    android:id="@+id/btShowMap"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="8dp"
+                    android:text="地図表示"
+                    android:textSize="10sp" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="緯度"
+                    android:textColor="#000000"
+                    android:textSize="14sp" />
+
                 <TextView
                     android:id="@+id/tvLatitude"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:layout_marginBottom="10dp"
-                    android:text=""/>
+                    android:text=""
+                    android:textColor="#000000"
+                    android:textSize="14sp" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="経度"/>
+                    android:text="経度"
+                    android:textColor="#000000"
+                    android:textSize="14sp" />
+
                 <TextView
                     android:id="@+id/tvLongitude"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:layout_marginBottom="10dp"
-                    android:text=""/>
+                    android:text=""
+                    android:textColor="#000000"
+                    android:textSize="14sp" />
             </LinearLayout>
-            <!--<LinearLayout
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:orientation="vertical">
+
                 <TextView
-                    android:id="@+id/tvpresent"
+                    android:id="@+id/tvComment"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/tv_present"/>
-                <TextView
-                    android:id="@+id/tvpLatitude"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=""/>
-                <TextView
-                    android:id="@+id/tvpLongitude"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=""/>
-            </LinearLayout>-->
-            <TextView
-                android:id="@+id/tvComment"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/tv_comment"
-                android:layout_marginBottom="5dp"/>
+                    android:layout_marginBottom="5dp"
+                    android:background="#9999cc"
+                    android:text="@string/comment"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp" />
             <EditText
                 android:id="@+id/etComment"
                 android:layout_width="match_parent"
@@ -252,20 +288,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
-            <Button
-                android:id="@+id/btPost"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/bt_post"
-                android:layout_gravity="center"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="5dp"/>
-            <Button
-                android:id="@+id/btClear"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/bt_clear"
-                android:layout_gravity="center"/>
+                <Button
+                    android:id="@+id/btPost"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="fill_horizontal"
+                    android:text="@string/bt_post" />
+
+                <Button
+                    android:id="@+id/btClear"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bt_clear"
+                    android:layout_gravity="fill_horizontal"/>
 
             </LinearLayout>
         </RelativeLayout>

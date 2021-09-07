@@ -37,6 +37,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.websarva.wings.android.test8.MainActivity.getNowDateTime;
 
 public class AllMapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -46,12 +51,19 @@ public class AllMapsActivity extends FragmentActivity implements OnMapReadyCallb
     private DatabaseReference reff;
     private StorageReference mImageDataref;
     private Marker[] markerList;
-    private String[] commentList,imageList;
+    private String[] imageList;
+    private ArrayList<String> commentList;
     private Bitmap[]  bitmapList;
     Post post;
     Bitmap bitmap;
     private int n=0;
+    private int m=0;
     private int count=1;
+    private final String username="高専太郎";
+
+    public AllMapsActivity() {
+    }
+    // private String comment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,15 +74,16 @@ public class AllMapsActivity extends FragmentActivity implements OnMapReadyCallb
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         Intent intent=getIntent();
-        maxId=intent.getLongExtra("maxId",0);
-        commentList=new String[100];
+        //maxId=intent.getLongExtra("maxId",0);
+        //commentList=new String[100];
+        commentList=new ArrayList<String>() ;
         //otherList=new ArrayList<String>();
         imageList=new String[100];
         markerList=new Marker[100];
         bitmapList=new Bitmap[100];
     }
 
-    public void setMarker(String title,String detail,LatLng location,Bitmap bitmap){
+    public void setMarker(String title,String detail,LatLng location,Bitmap bitmap,String comment){
         mMap.setInfoWindowAdapter(new AllMapsActivity.CustomInfoAdapter());
         MarkerOptions options=new MarkerOptions();
         options.position(location);
@@ -109,12 +122,13 @@ public class AllMapsActivity extends FragmentActivity implements OnMapReadyCallb
                 break;
         }
         Marker marker=mMap.addMarker(options);
-        markerList[n-1]=marker;
+        markerList[m]=marker;
         marker.showInfoWindow();
-        if(n==count){
+        if(n<count){
             Toast.makeText(AllMapsActivity.this,"マーカーの設置が終わりました",Toast.LENGTH_LONG).show();
         }
         count++;
+        m++;
     }
 
     private class CustomInfoAdapter implements GoogleMap.InfoWindowAdapter{
@@ -141,9 +155,13 @@ public class AllMapsActivity extends FragmentActivity implements OnMapReadyCallb
             TextView tvDate=view.findViewById(R.id.tvDate);
             for(int a=0;a<100;a++){
                 if(marker.equals(markerList[a])){
+                    //String comment=commentList[a];
+                    String comment=commentList.get(a);
                     ivMapCamera.setImageBitmap(bitmapList[a]);
-                    tvmapComment.setText(commentList[a]);
+                    tvmapComment.setText(comment);
+                    //System.out.println("bitmap:"+bitmapList[a]+",comment:"+commentList[a+1]);
                 }
+                //if(marker.equals())
             }
             tvmapTitle.setText(marker.getTitle());
             tvmapDetail.setText(marker.getSnippet());
@@ -175,17 +193,23 @@ public class AllMapsActivity extends FragmentActivity implements OnMapReadyCallb
                 for(DataSnapshot data: snapshot.getChildren()){
                     post=data.getValue(Post.class);
                     assert post != null;
-                    String title=post.getTitle();
-                    String detail=post.getDetail();
-                    String image=post.getImage();
-                    double latitude=post.getLatitude();
-                    double longitude=post.getLongitude();
-                    LatLng location=new LatLng(latitude,longitude);
-                    String comment=post.getComment();
-                    commentList[i]=comment;
-                    imageList[i]=image;
-                    i++;
-                    StoragePicked(image,title,detail,comment,location);
+                    //System.out.println("id="+id);
+                    String name=post.getName();
+                    if(name.equals(username)) {
+                        String title = post.getTitle();
+                        String detail = post.getDetail();
+                        String image = post.getImage();
+                        double latitude = post.getLatitude();
+                        double longitude = post.getLongitude();
+                        LatLng location = new LatLng(latitude, longitude);
+                        String comment = post.getComment();
+                        //commentList[i]=comment;
+                        commentList.add(comment);
+                        imageList[i] = image;
+                        i++;
+                        StoragePicked(image, title, detail, comment, location);
+                        //System.out.println(commentList[i-1]);
+                    }
                 }
             }
 
@@ -208,9 +232,10 @@ public class AllMapsActivity extends FragmentActivity implements OnMapReadyCallb
                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                     bitmap=BitmapFactory.decodeFile(localfile.getAbsolutePath());
                     //Bitmap mbitmap=Bitmap.createScaledBitmap(s,s.getWidth()/10,s.getHeight()/10,true);
-                    bitmapList[n]=bitmap;
+                    Bitmap bm=Bitmap.createScaledBitmap(bitmap,480,410,true);
+                    bitmapList[n]=bm;
                     n++;
-                    setMarker(title,detail,location,bitmap);
+                    setMarker(title,detail,location,bm,comment);
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -221,7 +246,6 @@ public class AllMapsActivity extends FragmentActivity implements OnMapReadyCallb
         }catch (IOException e){
             e.printStackTrace();
         }
-        //}
 
     }
 }

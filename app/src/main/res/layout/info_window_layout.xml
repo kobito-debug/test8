@@ -43,7 +43,8 @@
         android:id="@+id/ivMapCamera"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center"
+        android:scaleType="fitStart"/>
     <TextView
         android:id="@+id/tvDate"
         android:layout_width="wrap_content"

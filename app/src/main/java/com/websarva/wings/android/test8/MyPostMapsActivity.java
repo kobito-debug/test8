@@ -69,7 +69,7 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
         mapFragment.getMapAsync(this);
         Intent intent=getIntent();
         username=intent.getStringExtra("name");
-        Toast.makeText(MyPostMapsActivity.this,"ようこそ"+username,Toast.LENGTH_SHORT).show();
+        //Toast.makeText(MyPostMapsActivity.this,"ようこそ"+username,Toast.LENGTH_SHORT).show();
         maxId=intent.getLongExtra("maxId",0);
         commentList=new String[100];
         //otherList=new ArrayList<String>();

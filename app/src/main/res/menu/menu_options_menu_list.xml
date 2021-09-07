@@ -8,9 +8,9 @@
     <item
         android:id="@+id/manuSeeAllMap"
         app:showAsAction="never"
-        android:title="みんなのマップを見る"/>
+        android:title="マップ作製例を見る"/>
     <item
         android:id="@+id/menuInformation"
         app:showAsAction="never"
-        android:title="お知らせ"/>
+        android:title="アプリの説明"/>
 </menu>

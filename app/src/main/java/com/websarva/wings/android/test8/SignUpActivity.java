@@ -107,7 +107,7 @@ public class SignUpActivity extends AppCompatActivity {
             etPassword.requestFocus();
             return;
         }
-        if(password.length()<6){
+        if(password.length()<5){
             etPassword.setError("パスワードの文字数は6文字以上にしてください");
             etPassword.requestFocus();
             return;

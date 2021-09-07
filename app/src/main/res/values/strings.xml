@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">test8</string>
+    <string name="app_name">防犯まちづくり</string>
     <string name="rb_hardsee">見えにくい</string>
     <string name="rb_easyenter">入りやすい</string>
     <string name="rb_bad">治安が悪い</string>
@@ -7,13 +7,13 @@
     <string name="rb_attraction">まちの残したい場所</string>
     <string name="rb_action">安全への取り組み</string>
     <string name="rb_other">その他</string>
-    <string name="tv_select"><u>どれか一つ選んでください</u></string>
-    <string name="tv_detail"><u>詳細な情報</u></string>
+    <string name="tv_select"><u><b>どれか一つ選んでください</b></u></string>
+    <string name="tv_detail"><u><b>詳細な情報</b></u></string>
 
-    <string name="tv_location"><u>位置情報</u></string>
+    <string name="tv_location"><u><b>位置情報</b></u></string>
     <string name="bt_present">現在地</string>
     <string name="bt_other_location">検索</string>
-    <string name="tv_comment"><u>コメント</u></string>
+    <string name="tv_comment"><u><b>コメント</b></u></string>
     <string name="bt_post">投稿</string>
     <string name="bt_input">セット</string>
     <string name="bt_delete">投稿の削除</string>
@@ -44,15 +44,15 @@
     <string name="title_activity_my_maps">Map</string>
 
     <string name="info_window_detail"><u>詳細な情報：</u></string>
-    <string name="info_window_comment"><u>コメント：</u></string>
+    <string name="info_window_comment"><u>備考：</u></string>
     <string name="bt_emergency">緊急</string>
-    <string name="bt_clear">クリア</string>
+    <string name="bt_clear">入力内容をクリアする</string>
     <string name="menu_emergency">助けを呼ぶ</string>
 
     <string name="tv_spinner">所属</string>
     <string name="title_activity_organization">Map</string>
     <string name="bt_edit">編集</string>
-    <string name="tv_image_2"><u>写真</u></string>
+    <string name="tv_image_2"><u><b>写真</b></u></string>
     <string name="tv_other_comment"><u>コメントしてみよう！</u></string>
     <string name="bt_update">コメント投稿</string>
     <string name="tv_info_other"><u>他の人からのコメント</u></string>
@@ -83,4 +83,32 @@
         <item>自治体</item>
         <item>その他</item>
     </string-array>
+    <string-array name="titlelist">
+        <item>---選択してください---</item>
+        <item>見えにくい場所</item>
+        <item>入りやすい場所</item>
+        <item>治安が悪い場所</item>
+        <item>避難できる場所</item>
+        <item>まちの残したい場所</item>
+        <item>安全への取り組み</item>
+        <item>その他</item>
+    </string-array>
+    <string name="comment"><u>備考</u></string>
+    
+    <!-- Information.java -->
+    <string name="info_title"><b>アプリ説明</b></string>
+    <string name="info_purpose">このアプリの目的</string>
+    <string name="info_purpose2">危険箇所や安全箇所を投稿し、マップを作製することで<u><b>防犯活動への住民参加の促進やまちの犯罪不安の軽減、活動の持続可能性</b></u>を高めることを目指す。</string>
+    <string name="info_purpose3">さらに、まちの良いところを見つけることで<u><b>まちへの関心・愛着心の向上</b></u>を目指す。</string>
+    <string name="info_kiken">犯罪が起こりやすい場所とは、</string>
+    <string name="info_kiken2">誰もが<b><u>入りやすく</u></b>、誰からも<b><u>見えにくい</u></b>場所</string>
+    <string name="info_example_str">例）</string>
+    <string name="info_example1">＜１階が車庫の家が並ぶ道路＞</string>
+    <string name="info_example1_1">１階が車庫という戸建て住宅が両側に並ぶ道路は誰もが<b>入りやすい</b></string>
+    <string name="info_example1_2">生活空間が２階となるため、歩行者の姿が<b>見えにくい</b></string>
+    <string name="info_example2">＜樹木に囲まれた公園＞</string>
+    <string name="info_example2_1">大人の身長程度の樹木が公園の周囲に密集している公園は、ブロック塀に囲まれた公園と同じで、公園の周囲から中が<b>見えにくい</b></string>
+    <string name="info_example3">これらのほかにも、死角や人の目がないところ、落書きがされているところは危険な場所とされている</string>
+    <string name="info_input_example">マップ作製例を見る</string>
+    <string name="info_shutten">出典：東京都都民安全推進本部総合推進部都民安全推進課「地域安全マップ作り指導マニュアル」</string>
 </resources>

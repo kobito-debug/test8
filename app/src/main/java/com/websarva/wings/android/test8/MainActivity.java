@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.ContentResolver;
@@ -13,22 +14,31 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,13 +59,18 @@ import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
 
 import org.jetbrains.annotations.NotNull;
+import org.w3c.dom.Text;
 
 import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LocationListener{
     private String title="";
     RadioGroup rgSelect;
     User user;
@@ -66,12 +81,13 @@ public class MainActivity extends AppCompatActivity {
     String userID;
     String username;
     String imageName;
+    LocationManager locationManager;
     private static final int PICK_IMAGE_REQUEST=1;
     private static final int REQUEST_GALLERY=0;
     private static final int RESULT_CAMERA=1001;
     private ImageView imageView;
     private String path;
-
+    private String platitude="0",plongitude="0";
     private Uri mImageUri;
     private StorageReference mStorageref;
     private DatabaseReference stDataref;
@@ -90,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Intent intent=getIntent();
         extraname=intent.getStringExtra("name");
-        final TextView tvExample = findViewById(R.id.tvExample);
+        TextView tvExample = findViewById(R.id.tvExample);
         //本を参考に
         final String strHardSee = "例）街灯が少なくて夜間暗くなる、人通りが少ない";
         final String strEasyEnter = "例）入口が広い、柵がない、セキュリティが設置されていない";
@@ -104,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
         userID=mAuth.getCurrentUser().getUid();
         username=mAuth.getCurrentUser().getDisplayName();
         System.out.println(userID+":"+username);
+        Toast.makeText(MainActivity.this,"ようこそ"+username+"さん！",Toast.LENGTH_SHORT).show();
         //Postテーブル
         post=new Post();
         reffpost=FirebaseDatabase.getInstance().getReference().child("Post");
@@ -153,7 +170,11 @@ public class MainActivity extends AppCompatActivity {
         btSearch.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
-
+                try {
+                    onSearchClicked(view);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -181,49 +202,46 @@ public class MainActivity extends AppCompatActivity {
                 clickCount=1;
             }
         });
-
-        rgSelect = findViewById(R.id.rgSelect);
-        //int checkedId=rgSelect.getCheckedRadioButtonId();
-        rgSelect.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        Spinner spTitle=findViewById(R.id.sptitle);
+        /*spTitle.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
-                RadioButton radioButton = findViewById(checkedId);
-                switch (checkedId) {
-                    case R.id.rbHardSee:
-                        tvExample.setText(strHardSee);
-                        title="見えにくい場所";
-                        break;
-
-                    case R.id.rbEasyEnter:
-                        tvExample.setText(strEasyEnter);
-                        title="入りやすい場所";
-                        break;
-
-                    case R.id.rbBad:
-                        tvExample.setText(strBad);
-                        title="治安が悪い場所";
-                        break;
-
-                    case R.id.rbEscape:
-                        tvExample.setText(strEscape);
-                        title="避難できる場所";
-                        break;
-                    case R.id.rbAttraction:
-                        tvExample.setText("");
-                        title="まちの残したい場所";
-                        break;
-                    case R.id.rbAction:
-                        tvExample.setText(strAction);
-                        title="安全への取り組み";
-                        break;
-                    case R.id.rbOther:
-                        tvExample.setText("");
-                        title="その他";
-                        break;
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                title=spTitle.getSelectedItem().toString();
+                Toast.makeText(MainActivity.this,title,Toast.LENGTH_SHORT).show();
+            }
+        });*/
+        spTitle.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                title=spTitle.getSelectedItem().toString();
+                //Toast.makeText(MainActivity.this,title,Toast.LENGTH_SHORT).show();
+                if(title.equals("見えにくい場所")){
+                    tvExample.setText(strHardSee);
+                }else if(title.equals("入りやすい場所")){
+                    tvExample.setText(strEasyEnter);
+                }else if(title.equals("治安が悪い場所")){
+                    tvExample.setText(strBad);
+                }else if(title.equals("避難できる場所")){
+                    tvExample.setText(strEscape);
+                }else if(title.equals("安全への取り組み")){
+                    tvExample.setText(strAction);
+                }else{
+                    tvExample.setText("");
                 }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
             }
         });
 
+        if(ContextCompat.checkSelfPermission(MainActivity.this,Manifest.permission.ACCESS_FINE_LOCATION)!=PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION,},1000);
+        }else{
+            locationStart();
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,50,(LocationListener)MainActivity.this);
+        }
     }
 
     //入力内容をデータベースに登録
@@ -247,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
         String othercomment="";
         image=String.valueOf(mImageUri);
         System.out.println("image="+image);
-        if(title.equals("") || detail.equals("") || latitude==0.0 || longitude==0.0 || clickCount<1 ){
+        if(title.equals("---選択してください---") || detail.equals("") || latitude==0.0 || longitude==0.0 || clickCount<1 ){
             Toast.makeText(MainActivity.this, "入力が終わっていません", Toast.LENGTH_SHORT).show();
         }else{
             //データ追加
@@ -256,7 +274,11 @@ public class MainActivity extends AppCompatActivity {
             post.setDetail(detail);
             post.setLatitude(latitude);
             post.setLongitude(longitude);
-            post.setComment(comment);
+            if(comment.equals("")){
+                post.setComment("なし");
+            }else{
+                post.setComment(comment);
+            }
             if(image==null){
                 image="null";
             }
@@ -264,12 +286,12 @@ public class MainActivity extends AppCompatActivity {
             // user.setOtherComment(othercomment);
             post.setUserId(userID);
             //reff.push().setValue(user);
-            maxid=maxid+1;
+            maxid++;
             reffpost.child(String.valueOf(maxid+1)).setValue(post);
             Toast.makeText(MainActivity.this,"投稿されました！",Toast.LENGTH_LONG).show();
-           // Intent intent =new Intent(MainActivity.this,MyPostMapsActivity.class);
-            //intent.putExtra("maxId",maxid);
-            //startActivity(intent);
+            Intent intent =new Intent(MainActivity.this,MyPostMapsActivity.class);
+            intent.putExtra("name",username);
+            startActivity(intent);
         }
     }
     private String getFileExtension(Uri uri){
@@ -367,20 +389,31 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent,RESULT_CAMERA);
     }
 
+    private void locationStart(){
+        Log.d("debug","locationStart()");
+        locationManager=(LocationManager)getSystemService(LOCATION_SERVICE);
+        if(locationManager!=null && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+            Log.d("debug","location manager Enabled");
+        }else{
+            Intent settingIntent=new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(settingIntent);
+            Log.d("debug","not gpsEnabled");
+        }
+        if(ContextCompat.checkSelfPermission(MainActivity.this,Manifest.permission.ACCESS_FINE_LOCATION)!=PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION,},1000);
+            Log.d("debug","checkSelfPermission false");
+            return;
+        }
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,50, (LocationListener) this);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
        //カメラアプリからの戻りでかつ撮影成功の場合
         if (requestCode == RESULT_CAMERA && resultCode == RESULT_OK) {
-            //mImageUri=null;
-            //Bitmap bitmap= (Bitmap) data.getExtras().get("data");
-            /*if(data!=null){
-                mImageUri=data.getData();
-            }*/
             imageView=findViewById(R.id.ivCamera);
             imageView.setImageURI(mImageUri);
-            //imageView.setImageBitmap(bitmap);
-            //imageByte=imageViewToByte(ivCamera);
         }
         //ギャラリー
         if(requestCode==REQUEST_GALLERY && resultCode==RESULT_OK){
@@ -419,8 +452,20 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent,PICK_IMAGE_REQUEST);
     }
     public void onMapShowCurrentButtonClick(View view){
-
+        TextView tvLatitude=findViewById(R.id.tvLatitude);
+        TextView tvLongitude=findViewById(R.id.tvLongitude);
+        Double Latitude=Double.parseDouble(tvLatitude.getText().toString());
+        Double Longitude=Double.parseDouble(tvLongitude.getText().toString());
+        //フィールドの緯度と経度の値をもとにマップアプリと連携するURI文字列を生成。
+        String uriStr = "geo:" + Latitude + "," + Longitude;
+        //URI文字列からURIオブジェクトを生成。
+        Uri uri = Uri.parse(uriStr);
+        //Intentオブジェクトを生成。
+        Intent intentMaps = new Intent(Intent.ACTION_VIEW, uri);
+        //アクティビティを起動。
+        startActivity(intentMaps);
     }
+
     public void onInputClicked(View view){//セットボタンクリック時に緯度経度を入力した数値で表示
         EditText etLatitude=findViewById(R.id.etSetLatitude);
         EditText etLongitude=findViewById(R.id.etSetLongitude);
@@ -431,15 +476,93 @@ public class MainActivity extends AppCompatActivity {
         tvLatitude.setText(setLatitude);
         tvLongitude.setText(setLongitude);
     }
-    public void onSearchClicked(View view){
-
+    public void onSearchClicked(View view) throws IOException{
+        EditText etSearch=findViewById(R.id.etLocation);
+        TextView tvLatitude=findViewById(R.id.tvLatitude);
+        TextView tvLongitude=findViewById(R.id.tvLongitude);
+        double latitude=0;
+        double longitude=0;
+        //座標を取得したい住所
+        String Search2str=etSearch.getText().toString();
+        //ジオコーダーオブジェクトのインスタンスを生成
+        Geocoder geocoder=new Geocoder(MainActivity.this, Locale.getDefault());
+        //結果を返してほしい件数を指定
+        int maxResults=1;
+        //結果を代入する変数
+        List<Address> lstAddr;
+        //位置情報の取得
+        lstAddr=geocoder.getFromLocationName(Search2str,maxResults);
+        if(lstAddr!=null && lstAddr.size()>0){
+            //緯度・経度取得
+            Address addr=lstAddr.get(0);
+            latitude=addr.getLatitude();
+            longitude=addr.getLongitude();
+            tvLatitude.setText(Double.toString(latitude));
+            tvLongitude.setText(Double.toString(longitude));
+        }
     }
 
     public void onPresentClicked(View view){
+        TextView tvLat=findViewById(R.id.tvLatitude);
+        TextView tvLng=findViewById(R.id.tvLongitude);
+        tvLat.setText(platitude);
+        tvLng.setText(plongitude);
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode,String[] permissions,int[] grantResults){
+        if(requestCode==1000){
+            if(grantResults[0]==PackageManager.PERMISSION_GRANTED){
+                Log.d("debug","checkSelfPermission true");
+                locationStart();
+            }else{
+                Toast toast=Toast.makeText(MainActivity.this,"これ以上何もできません",Toast.LENGTH_LONG);
+                toast.show();
+            }
+        }
+    }
+
+    @Override
+    public void onStatusChanged(String provider,int status,Bundle extras){
 
     }
-    public void onClearButtonClicked(View view){
+    @Override
+    public void onLocationChanged(Location location){
+        Button btPresent=findViewById(R.id.btPresent);
+        platitude=String.valueOf(location.getLatitude());
+        plongitude=String.valueOf(location.getLongitude());
+        Toast.makeText(MainActivity.this,"現在地の取得が完了しました",Toast.LENGTH_SHORT).show();
+        btPresent.setEnabled(true);
+    }
 
+    @Override
+    public void onProviderEnabled(String provider){}
+
+    @Override
+    public  void onProviderDisabled(String provider){}
+
+    public void onClearButtonClicked(View view){
+        EditText Detail=findViewById(R.id.etDetail);
+        Detail.setText("");
+        Spinner spinner=findViewById(R.id.sptitle);
+        spinner.setSelection(0);
+        ImageView ivCamera=findViewById(R.id.ivCamera);
+        ivCamera.setImageResource(android.R.drawable.ic_menu_camera);
+        ImageView ivGallery=findViewById(R.id.ivGallery);
+        ivGallery.setImageResource(android.R.drawable.ic_menu_gallery);
+        EditText etSearch=findViewById(R.id.etLocation);
+        etSearch.setText("");
+        EditText etsetLat=findViewById(R.id.etSetLatitude);
+        etsetLat.setText("");
+        EditText etsetLon=findViewById(R.id.etSetLongitude);
+        etsetLon.setText("");
+        EditText etComment=findViewById(R.id.etComment);
+        etComment.setText("");
+        TextView tvLat=findViewById(R.id.tvLatitude);
+        TextView tvLng=findViewById(R.id.tvLongitude);
+        tvLat.setText("");
+        tvLng.setText("");
+        clickCount=0;
+        Toast.makeText(MainActivity.this,"入力内容がクリアされました",Toast.LENGTH_SHORT).show();
     }
     public static String getNowDate(){
         final DateFormat df=new SimpleDateFormat("yyyyMMdd");
