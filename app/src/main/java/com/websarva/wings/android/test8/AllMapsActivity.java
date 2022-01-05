@@ -1,12 +1,15 @@
 package com.websarva.wings.android.test8;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -43,7 +46,7 @@ import java.util.List;
 
 import static com.websarva.wings.android.test8.MainActivity.getNowDateTime;
 
-public class AllMapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class AllMapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private int i=1;
@@ -76,6 +79,11 @@ public class AllMapsActivity extends FragmentActivity implements OnMapReadyCallb
         Intent intent=getIntent();
         //maxId=intent.getLongExtra("maxId",0);
         //commentList=new String[100];
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar!=null){
+            actionBar.setTitle("マップ作製例");
+        }
+        actionBar.setDisplayHomeAsUpEnabled(true);
         commentList=new ArrayList<String>() ;
         //otherList=new ArrayList<String>();
         imageList=new String[100];
@@ -195,7 +203,8 @@ public class AllMapsActivity extends FragmentActivity implements OnMapReadyCallb
                     assert post != null;
                     //System.out.println("id="+id);
                     String name=post.getName();
-                    if(name.equals(username)) {
+
+                    //if(name.equals(username)) {
                         String title = post.getTitle();
                         String detail = post.getDetail();
                         String image = post.getImage();
@@ -209,7 +218,13 @@ public class AllMapsActivity extends FragmentActivity implements OnMapReadyCallb
                         i++;
                         StoragePicked(image, title, detail, comment, location);
                         //System.out.println(commentList[i-1]);
-                    }
+                    /*}else if(name==null){
+                        Toast.makeText(AllMapsActivity.this,"name is null",Toast.LENGTH_SHORT).show();
+                        System.out.println("name is null");
+                    }else{
+                        Toast.makeText(AllMapsActivity.this,"Error in database",Toast.LENGTH_SHORT).show();
+                        System.out.println("Error in database");
+                    }*/
                 }
             }
 
@@ -247,5 +262,13 @@ public class AllMapsActivity extends FragmentActivity implements OnMapReadyCallb
             e.printStackTrace();
         }
 
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        int itemId=item.getItemId();
+        if(itemId==android.R.id.home){
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

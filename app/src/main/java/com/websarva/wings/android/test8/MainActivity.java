@@ -2,6 +2,7 @@ package com.websarva.wings.android.test8;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -14,6 +15,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -62,6 +64,7 @@ import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Text;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Date;
@@ -98,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     Button btPost;
     private int clickCount=0;
     String extraname;
+    private byte[] imageByte;
 
 
     @Override
@@ -141,7 +145,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         mStorageref= FirebaseStorage.getInstance().getReference("Uploads");
         progressBar=(ProgressBar)findViewById(R.id.pbMain);
         btPost = findViewById(R.id.btPost);
-        //btPost.setEnabled(false);
         btPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -289,8 +292,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
             maxid++;
             reffpost.child(String.valueOf(maxid+1)).setValue(post);
             Toast.makeText(MainActivity.this,"投稿されました！",Toast.LENGTH_LONG).show();
-            Intent intent =new Intent(MainActivity.this,MyPostMapsActivity.class);
+            Intent intent =new Intent(MainActivity.this,MapsConfirmActivity.class);
             intent.putExtra("name",username);
+            intent.putExtra("title",title);
+            intent.putExtra("detail",detail);
+            intent.putExtra("latitude",latitude);
+            intent.putExtra("longitude",longitude);
+            intent.putExtra("comment",comment);
+            intent.putExtra("image",imageByte);
             startActivity(intent);
         }
     }
@@ -408,12 +417,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode,  Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
        //カメラアプリからの戻りでかつ撮影成功の場合
         if (requestCode == RESULT_CAMERA && resultCode == RESULT_OK) {
             imageView=findViewById(R.id.ivCamera);
             imageView.setImageURI(mImageUri);
+            imageByte=imageViewToByte(imageView);
         }
         //ギャラリー
         if(requestCode==REQUEST_GALLERY && resultCode==RESULT_OK){
@@ -428,7 +438,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                 int height=image.getHeight()/4;
                 Bitmap image2=Bitmap.createScaledBitmap(image,width,height,false);
                 imageView.setImageBitmap(image2);
-                //imageByte=imageViewToByte(imageView);
+                imageByte=imageViewToByte(imageView);
             } catch (Exception e) {
 
             }
@@ -443,6 +453,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
             path = c.getString(column_index);
             Log.v("test", "path=" + path);
         }
+    }
+
+    public static byte[] imageViewToByte(ImageView image){
+        Bitmap bitByte=((BitmapDrawable)image.getDrawable()).getBitmap();
+        ByteArrayOutputStream stream=new ByteArrayOutputStream();
+        bitByte.compress(Bitmap.CompressFormat.PNG,100,stream);
+        byte[] byteArray=stream.toByteArray();
+        return byteArray;
     }
 
     private void openFileChooser(){
@@ -592,15 +610,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     public boolean onOptionsItemSelected(MenuItem item){
         int itemId=item.getItemId();
         switch (itemId){
+            //自分のマップを見る
             case R.id.menuSeeMyMap:
                 Intent mypostIntent=new Intent(MainActivity.this,MyPostMapsActivity.class);
                 mypostIntent.putExtra("name",username);
                 startActivity(mypostIntent);
                 break;
+            //アプリ説明画面
             case R.id.menuInformation:
                 Intent informationIntent=new Intent(MainActivity.this,Information.class);
                 startActivity(informationIntent);
                 break;
+            //マップ作製例
             case R.id.manuSeeAllMap:
                 Intent allpostIntent=new Intent(MainActivity.this,AllMapsActivity.class);
                 startActivity(allpostIntent);

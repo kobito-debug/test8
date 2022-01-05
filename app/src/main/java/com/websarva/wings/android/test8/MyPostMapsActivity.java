@@ -2,6 +2,8 @@ package com.websarva.wings.android.test8;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 
 import android.content.Intent;
@@ -9,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -43,7 +46,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MyPostMapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private int i=1;
@@ -69,7 +72,12 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
         mapFragment.getMapAsync(this);
         Intent intent=getIntent();
         username=intent.getStringExtra("name");
-        //Toast.makeText(MyPostMapsActivity.this,"ようこそ"+username,Toast.LENGTH_SHORT).show();
+        Toast.makeText(MyPostMapsActivity.this,"ようこそ"+username,Toast.LENGTH_SHORT).show();
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar!=null){
+            actionBar.setTitle("自分のマップを見る");
+        }
+        actionBar.setDisplayHomeAsUpEnabled(true);
         maxId=intent.getLongExtra("maxId",0);
         commentList=new String[100];
         //otherList=new ArrayList<String>();
@@ -119,9 +127,9 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
         Marker marker=mMap.addMarker(options);
         markerList[n-1]=marker;
         marker.showInfoWindow();
-        if(n==count){
+        /*if(n==count){
             Toast.makeText(MyPostMapsActivity.this,"マーカーの設置が終わりました",Toast.LENGTH_LONG).show();
-        }
+        }*/
         count++;
     }
 
@@ -182,10 +190,11 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
             @Override
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
                 for(DataSnapshot data: snapshot.getChildren()){
+                    Post post=new Post();
                     post=data.getValue(Post.class);
                     assert post != null;
                     String name=post.getName();
-                    if(name.equals(username)){
+                    //if(name.equals(username)){
                         String title=post.getTitle();
                         String detail=post.getDetail();
                         String image=post.getImage();
@@ -197,7 +206,9 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
                         imageList[i]=image;
                         i++;
                         StoragePicked(image,title,detail,comment,location);
-                    }
+                    //}else{
+                        //Toast.makeText(MyPostMapsActivity.this,"あなたの投稿が見つかりませんでした",Toast.LENGTH_SHORT).show();
+                    //}
                 }
             }
 
@@ -236,9 +247,12 @@ public class MyPostMapsActivity extends FragmentActivity implements OnMapReadyCa
         //}
 
     }
-
-    /*@Override
-    public void onInfoWindowClick(Marker marker){
-        //投稿編集画面へ移動
-    }*/
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        int itemId=item.getItemId();
+        if(itemId==android.R.id.home){
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

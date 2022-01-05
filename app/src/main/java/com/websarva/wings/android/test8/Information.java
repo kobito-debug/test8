@@ -1,12 +1,14 @@
 package com.websarva.wings.android.test8;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -49,10 +51,23 @@ public class Information extends AppCompatActivity {
                 onShowMaps(view);
             }
         });
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar!=null){
+            actionBar.setTitle("アプリ説明");
+        }
+        actionBar.setDisplayHomeAsUpEnabled(true);
     }
     public void onShowMaps(View view){
         Intent intent=new Intent(Information.this,AllMapsActivity.class);
         startActivity(intent);
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        int itemId=item.getItemId();
+        if(itemId==android.R.id.home){
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 }
