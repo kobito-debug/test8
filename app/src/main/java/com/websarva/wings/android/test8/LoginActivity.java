@@ -23,6 +23,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
@@ -38,6 +39,7 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     EditText etMail,etPass;
     ProgressBar pbLogin;
+    String email,password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,11 +67,20 @@ public class LoginActivity extends AppCompatActivity {
                 userLogin();
             }
         });
+
+        Button btRePassword=findViewById(R.id.btRePassword);
+        btRePassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(LoginActivity.this,PasswordReset.class);
+                startActivity(intent);
+            }
+        });
     }
 
     public void userLogin(){
-        String email=etMail.getText().toString().trim();
-        String password=etPass.getText().toString().trim();
+        email=etMail.getText().toString().trim();
+        password=etPass.getText().toString().trim();
 
         if (email.isEmpty()) {
             etMail.setError("Email is required");
@@ -110,6 +121,4 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-
-
 }

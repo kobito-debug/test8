@@ -63,6 +63,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btSignIn" />
 
+
+    <Button
+        android:id="@+id/btRePassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="パスワードを忘れた場合"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btSignUp" />
+
     <ProgressBar
         android:id="@+id/pbLogin"
         style="?android:attr/progressBarStyle"
