@@ -58,7 +58,8 @@ public class Information extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
     }
     public void onShowMaps(View view){
-        Intent intent=new Intent(Information.this,AllMapsActivity.class);
+        Intent intent=new Intent(Information.this,MyPostMapsActivity.class);
+        intent.putExtra("intentname","作製例");
         startActivity(intent);
     }
     @Override

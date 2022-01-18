@@ -29,11 +29,13 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
@@ -46,6 +48,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+//自分のマップ・作製例
 public class MyPostMapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
@@ -57,10 +60,15 @@ public class MyPostMapsActivity extends AppCompatActivity implements OnMapReadyC
     private String[] commentList,imageList;
     private Bitmap[]  bitmapList;
     Post post;
+    Query query;
     Bitmap bitmap;
     private int n=0;
     String username;
     int count=1;
+    DatabaseReference reffPost;
+    private FirebaseAuth mAuth;
+    String userID;
+    String intentname;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,10 +80,11 @@ public class MyPostMapsActivity extends AppCompatActivity implements OnMapReadyC
         mapFragment.getMapAsync(this);
         Intent intent=getIntent();
         username=intent.getStringExtra("name");
+        intentname=intent.getStringExtra("intentname");
         Toast.makeText(MyPostMapsActivity.this,"ようこそ"+username,Toast.LENGTH_SHORT).show();
         ActionBar actionBar = getSupportActionBar();
         if(actionBar!=null){
-            actionBar.setTitle("自分のマップを見る");
+            actionBar.setTitle("マップ画面");
         }
         actionBar.setDisplayHomeAsUpEnabled(true);
         maxId=intent.getLongExtra("maxId",0);
@@ -84,6 +93,8 @@ public class MyPostMapsActivity extends AppCompatActivity implements OnMapReadyC
         imageList=new String[100];
         markerList=new Marker[100];
         bitmapList=new Bitmap[100];
+        mAuth= FirebaseAuth.getInstance();
+        userID=mAuth.getCurrentUser().getUid();
     }
 
     public void setMarker(String title,String detail,LatLng location,Bitmap bitmap){
@@ -184,38 +195,49 @@ public class MyPostMapsActivity extends AppCompatActivity implements OnMapReadyC
         //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(test,7));
 
-        //データベース取得処理
-        reff=FirebaseDatabase.getInstance().getReference("Post");
-        reff.addValueEventListener(new ValueEventListener() {
+        post=new Post();
+        reffPost=FirebaseDatabase.getInstance().getReference().child("Post");
+        if(intentname.equals("自分のマップ")){
+            query=reffPost.orderByChild("userId").equalTo(userID);
+        }else if(intentname.equals("作製例")){
+            query=reffPost.orderByChild("userId").equalTo("efzp5DnBouhB9zY1DnropkVgnz12");
+        }
+        query.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                for(DataSnapshot data: snapshot.getChildren()){
-                    Post post=new Post();
-                    post=data.getValue(Post.class);
-                    assert post != null;
-                    String name=post.getName();
-                    //if(name.equals(username)){
-                        String title=post.getTitle();
-                        String detail=post.getDetail();
-                        String image=post.getImage();
-                        double latitude=post.getLatitude();
-                        double longitude=post.getLongitude();
-                        LatLng location=new LatLng(latitude,longitude);
-                        String comment=post.getComment();
-                        commentList[i]=comment;
-                        imageList[i]=image;
-                        i++;
-                        StoragePicked(image,title,detail,comment,location);
-                    //}else{
-                        //Toast.makeText(MyPostMapsActivity.this,"あなたの投稿が見つかりませんでした",Toast.LENGTH_SHORT).show();
-                    //}
-                }
+            public void onChildAdded(@NonNull @NotNull DataSnapshot snapshot, @Nullable @org.jetbrains.annotations.Nullable String previousChildName) {
+                post=snapshot.getValue(Post.class);
+                String title=post.getTitle();
+                String detail=post.getDetail();
+                String image=post.getImage();
+                double latitude=post.getLatitude();
+                double longitude=post.getLongitude();
+                LatLng location=new LatLng(latitude,longitude);
+                String comment=post.getComment();
+                commentList[i]=comment;
+                imageList[i]=image;
+                i++;
+                StoragePicked(image,title,detail,comment,location);
+
+            }
+
+            @Override
+            public void onChildChanged(@NonNull @NotNull DataSnapshot snapshot, @Nullable @org.jetbrains.annotations.Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull @NotNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull @NotNull DataSnapshot snapshot, @Nullable @org.jetbrains.annotations.Nullable String previousChildName) {
+
             }
 
             @Override
             public void onCancelled(@NonNull @NotNull DatabaseError error) {
-                //データ取得失敗
-                Toast.makeText(MyPostMapsActivity.this,"Postテーブルのデータ取得に失敗しました",Toast.LENGTH_SHORT).show();
+
             }
         });
     }

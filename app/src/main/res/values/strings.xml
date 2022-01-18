@@ -79,6 +79,7 @@
     <string name="comment"><u>備考</u></string>
     <string name="info_title"><b>アプリ説明</b></string>
     <string name="info_purpose">このアプリの目的</string>
+    <string name="tv_private"><u>投稿の公開</u></string>
 
     <!-- Information.java -->
     <string name="info_purpose2">危険箇所や安全箇所を投稿し、マップを作製することで<u><b>防犯活動への住民参加の促進やまちの犯罪不安の軽減、活動の持続可能性</b></u>を高めることを目指す。</string>

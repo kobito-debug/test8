@@ -39,6 +39,7 @@ public class SignUpActivity extends AppCompatActivity {
     DatabaseReference reffuser;
     long maxid=0;
     String userID,username,classes,displayname;
+    Spinner spinner;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,10 +49,11 @@ public class SignUpActivity extends AppCompatActivity {
         etPassword=findViewById(R.id.etUpPassword);
         pbSignup=findViewById(R.id.pbSignup);
         etDisplayname=findViewById(R.id.etDisplayname);
-        Spinner spinner=findViewById(R.id.sp);
+        spinner=findViewById(R.id.sp);
         classes= spinner.getSelectedItem().toString();
         mAuth=FirebaseAuth.getInstance();
         System.out.println(userID+":"+displayname);
+        maxid=0;
         //Userテーブル
         user=new User();
         reffuser= FirebaseDatabase.getInstance().getReference().child("User");
@@ -59,16 +61,14 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
-                    maxid=snapshot.getChildrenCount();
+                    maxid=(snapshot.getChildrenCount());
                 }
             }
 
             @Override
             public void onCancelled(@NonNull @NotNull DatabaseError error) {
-
             }
         });
-
 
         Button btSignUp=findViewById(R.id.btSignUp2);
         btSignUp.setOnClickListener(new View.OnClickListener() {
@@ -122,9 +122,11 @@ public class SignUpActivity extends AppCompatActivity {
                     saveUserInformation();
                     userID=mAuth.getCurrentUser().getUid();
                     //displayname=etDisplayname.getText().toString();
+                    classes= spinner.getSelectedItem().toString();
                     user.setUserId(userID);
                     user.setDisplayname(displayname);
                     user.setClasses(classes);
+                    maxid++;
                     reffuser.child(String.valueOf(maxid+1)).setValue(user);
                    startActivity(new Intent(SignUpActivity.this,MainActivity.class));
                 }else{

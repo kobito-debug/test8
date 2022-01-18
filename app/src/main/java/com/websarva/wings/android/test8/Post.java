@@ -10,6 +10,7 @@ public class Post {
     public String comment;
     public String othercomment;
     public String userId;
+    public String checkPrivate;
 
     public Post(){
 
@@ -55,6 +56,10 @@ public class Post {
     public String getuserId(){return userId;}
     public void setUserId(String userId){
         this.userId=userId;
+    }
+    public String getcheckPrivate(){return checkPrivate;}
+    public void setCheckPrivate(String checkPrivate){
+        this.checkPrivate=checkPrivate;
     }
 }
 

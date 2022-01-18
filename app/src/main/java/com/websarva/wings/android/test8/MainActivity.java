@@ -49,10 +49,12 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
@@ -80,6 +82,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     Post post;
     long maxid=0;
     DatabaseReference reffpost;
+    DatabaseReference reffUser;
+    FirebaseDatabase database;
     private FirebaseAuth mAuth;
     String userID;
     String username;
@@ -96,12 +100,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     private DatabaseReference stDataref;
     private ProgressBar progressBar;
     private StorageTask mUploadTask;
+    private String classes;
 
     private String image;
     Button btPost;
     private int clickCount=0;
     String extraname;
     private byte[] imageByte;
+    private RadioGroup rg;
+    private String checkPrivate=null;
 
 
     @Override
@@ -110,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         setContentView(R.layout.activity_main);
         Intent intent=getIntent();
         extraname=intent.getStringExtra("name");
+       // classes=intent.getStringExtra("classes");
         TextView tvExample = findViewById(R.id.tvExample);
         //本を参考に
         final String strHardSee = "例）街灯が少なくて夜間暗くなる、人通りが少ない";
@@ -141,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
 
             }
         });
-
+        //Storage
         mStorageref= FirebaseStorage.getInstance().getReference("Uploads");
         progressBar=(ProgressBar)findViewById(R.id.pbMain);
         btPost = findViewById(R.id.btPost);
@@ -153,6 +161,41 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         });
         stDataref=FirebaseDatabase.getInstance().getReference("Uploads");
 
+        // ユーザーの区分は何か
+        user=new User();
+        reffUser=FirebaseDatabase.getInstance().getReference().child("User");
+        Query query=reffUser.orderByChild("userId").equalTo(userID);
+        query.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull @NotNull DataSnapshot snapshot, @Nullable @org.jetbrains.annotations.Nullable String previousChildName) {
+                user=snapshot.getValue(User.class);
+                classes=user.getClasses();
+                Toast.makeText(MainActivity.this,"あなたの区分は"+classes,Toast.LENGTH_LONG).show();
+                System.out.println("区分は："+classes);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull @NotNull DataSnapshot snapshot, @Nullable @org.jetbrains.annotations.Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull @NotNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull @NotNull DataSnapshot snapshot, @Nullable @org.jetbrains.annotations.Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+                Log.d("Myapps","user not found.");
+            }
+        });
+
+        //button
         Button btPresent = findViewById(R.id.btPresent);
         btPresent.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -205,6 +248,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                 clickCount=1;
             }
         });
+        Button btImageupload2=findViewById(R.id.btImageupload2);
+        btImageupload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                uploadFile();
+                clickCount=1;
+            }
+        });
         Spinner spTitle=findViewById(R.id.sptitle);
         /*spTitle.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -239,6 +290,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
             }
         });
 
+        rg=findViewById(R.id.rgPrivate);
+        int rgId=rg.getCheckedRadioButtonId();
+        if(rgId==R.id.rbOn){
+            checkPrivate="true";
+        }else if(rgId==R.id.rbOff){
+            checkPrivate="false";
+        }
+
+        //現在地の取得
         if(ContextCompat.checkSelfPermission(MainActivity.this,Manifest.permission.ACCESS_FINE_LOCATION)!=PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION,},1000);
         }else{
@@ -267,8 +327,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         //Double image=0.0;
         String othercomment="";
         image=String.valueOf(mImageUri);
+        int rgId=rg.getCheckedRadioButtonId();
+        if(rgId==R.id.rbOn){
+            checkPrivate="true";
+        }else if(rgId==R.id.rbOff){
+            checkPrivate="false";
+        }else{
+            checkPrivate=null;
+        }
         System.out.println("image="+image);
-        if(title.equals("---選択してください---") || detail.equals("") || latitude==0.0 || longitude==0.0 || clickCount<1 ){
+        if(title.equals("---選択してください---") || detail.equals("") || latitude==0.0 || longitude==0.0 || clickCount<1 || checkPrivate==null){
             Toast.makeText(MainActivity.this, "入力が終わっていません", Toast.LENGTH_SHORT).show();
         }else{
             //データ追加
@@ -288,19 +356,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
             post.setImage(imageName);
             // user.setOtherComment(othercomment);
             post.setUserId(userID);
-            //reff.push().setValue(user);
+            rg=findViewById(R.id.rgPrivate);
+            post.setCheckPrivate(checkPrivate);
             maxid++;
             reffpost.child(String.valueOf(maxid+1)).setValue(post);
             Toast.makeText(MainActivity.this,"投稿されました！",Toast.LENGTH_LONG).show();
-            Intent intent =new Intent(MainActivity.this,MapsConfirmActivity.class);
-            intent.putExtra("name",username);
-            intent.putExtra("title",title);
-            intent.putExtra("detail",detail);
-            intent.putExtra("latitude",latitude);
-            intent.putExtra("longitude",longitude);
-            intent.putExtra("comment",comment);
-            intent.putExtra("image",imageByte);
-            startActivity(intent);
         }
     }
     private String getFileExtension(Uri uri){
@@ -609,23 +669,57 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         int itemId=item.getItemId();
-        switch (itemId){
-            //自分のマップを見る
-            case R.id.menuSeeMyMap:
-                Intent mypostIntent=new Intent(MainActivity.this,MyPostMapsActivity.class);
-                mypostIntent.putExtra("name",username);
-                startActivity(mypostIntent);
-                break;
-            //アプリ説明画面
-            case R.id.menuInformation:
-                Intent informationIntent=new Intent(MainActivity.this,Information.class);
-                startActivity(informationIntent);
-                break;
-            //マップ作製例
-            case R.id.manuSeeAllMap:
-                Intent allpostIntent=new Intent(MainActivity.this,AllMapsActivity.class);
-                startActivity(allpostIntent);
-                break;
+        if(classes.equals("個人")){
+            //個人ユーザーだった場合
+            switch (itemId){
+                //自分のマップを見る
+                case R.id.menuSeeMyMap:
+                    Intent mypostIntent=new Intent(MainActivity.this,MyPostMapsActivity.class);
+                    mypostIntent.putExtra("name",username);
+                    mypostIntent.putExtra("intentname","自分のマップ");
+                    startActivity(mypostIntent);
+                    break;
+                //アプリ説明画面
+                case R.id.menuInformation:
+                    Intent informationIntent=new Intent(MainActivity.this,Information.class);
+                    startActivity(informationIntent);
+                    break;
+                //マップ作製例
+                case R.id.menuMapExample:
+                    Intent allpostIntent=new Intent(MainActivity.this,MyPostMapsActivity.class);
+                    allpostIntent.putExtra("intentname","作製例");
+                    startActivity(allpostIntent);
+                    break;
+                //すべてのユーザーのマップを見る
+                case R.id.menuSeeAllMap:
+                    Toast.makeText(MainActivity.this,"個人ユーザーの方は利用できません",Toast.LENGTH_LONG).show();
+                    break;
+            }
+        }else{
+            //組織・団体ユーザーだった場合
+            switch (itemId){
+                //自分のマップを見る
+                case R.id.menuSeeMyMap:
+                    Intent mypostIntent=new Intent(MainActivity.this,MyPostMapsActivity.class);
+                    mypostIntent.putExtra("name",username);
+                    startActivity(mypostIntent);
+                    break;
+                //アプリ説明画面
+                case R.id.menuInformation:
+                    Intent informationIntent=new Intent(MainActivity.this,Information.class);
+                    startActivity(informationIntent);
+                    break;
+                //マップ作製例
+                case R.id.menuMapExample:
+                    Intent ExampleIntent=new Intent(MainActivity.this,AllMapsActivity.class);
+                    startActivity(ExampleIntent);
+                    break;
+                //すべてのユーザーのマップを見る
+                case R.id.menuSeeAllMap:
+                    Intent AllMapIntent=new Intent(MainActivity.this,AllMapsActivity.class);
+                    startActivity(AllMapIntent);
+                    break;
+            }
         }
         return super.onOptionsItemSelected(item);
     }

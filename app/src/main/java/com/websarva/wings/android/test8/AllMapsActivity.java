@@ -1,6 +1,7 @@
 package com.websarva.wings.android.test8;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
@@ -26,10 +27,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
@@ -58,6 +61,7 @@ public class AllMapsActivity extends AppCompatActivity implements OnMapReadyCall
     private ArrayList<String> commentList;
     private Bitmap[]  bitmapList;
     Post post;
+    Query query;
     Bitmap bitmap;
     private int n=0;
     private int m=0;
@@ -81,7 +85,7 @@ public class AllMapsActivity extends AppCompatActivity implements OnMapReadyCall
         //commentList=new String[100];
         ActionBar actionBar = getSupportActionBar();
         if(actionBar!=null){
-            actionBar.setTitle("マップ作製例");
+            actionBar.setTitle("みんなのマップ");
         }
         actionBar.setDisplayHomeAsUpEnabled(true);
         commentList=new ArrayList<String>() ;
@@ -132,6 +136,14 @@ public class AllMapsActivity extends AppCompatActivity implements OnMapReadyCall
         Marker marker=mMap.addMarker(options);
         markerList[m]=marker;
         marker.showInfoWindow();
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(@NonNull @NotNull Marker marker) {
+                Toast.makeText(AllMapsActivity.this,"インフォウィンドウクリック",Toast.LENGTH_LONG).show();
+                Intent intent=new Intent(AllMapsActivity.this,CommentActivity.class);
+                startActivity(intent);
+            }
+        });
         if(n<count){
             Toast.makeText(AllMapsActivity.this,"マーカーの設置が終わりました",Toast.LENGTH_LONG).show();
         }
@@ -194,8 +206,49 @@ public class AllMapsActivity extends AppCompatActivity implements OnMapReadyCall
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(test,7));
 
         //データベース取得処理
+        post=new Post();
         reff=FirebaseDatabase.getInstance().getReference("Post");
-        reff.addValueEventListener(new ValueEventListener() {
+        query=reff.orderByChild("checkPrivate").equalTo("true");
+        query.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull @NotNull DataSnapshot snapshot, @Nullable @org.jetbrains.annotations.Nullable String previousChildName) {
+                post=snapshot.getValue(Post.class);
+                String name=post.getName();
+                String title = post.getTitle();
+                String detail = post.getDetail();
+                String image = post.getImage();
+                double latitude = post.getLatitude();
+                double longitude = post.getLongitude();
+                LatLng location = new LatLng(latitude, longitude);
+                String comment = post.getComment();
+                //commentList[i]=comment;
+                commentList.add(comment);
+                imageList[i] = image;
+                i++;
+                StoragePicked(image, title, detail, comment, location);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull @NotNull DataSnapshot snapshot, @Nullable @org.jetbrains.annotations.Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull @NotNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull @NotNull DataSnapshot snapshot, @Nullable @org.jetbrains.annotations.Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+            }
+        });
+        /*reff.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
                 for(DataSnapshot data: snapshot.getChildren()){
@@ -217,14 +270,7 @@ public class AllMapsActivity extends AppCompatActivity implements OnMapReadyCall
                         imageList[i] = image;
                         i++;
                         StoragePicked(image, title, detail, comment, location);
-                        //System.out.println(commentList[i-1]);
-                    /*}else if(name==null){
-                        Toast.makeText(AllMapsActivity.this,"name is null",Toast.LENGTH_SHORT).show();
-                        System.out.println("name is null");
-                    }else{
-                        Toast.makeText(AllMapsActivity.this,"Error in database",Toast.LENGTH_SHORT).show();
-                        System.out.println("Error in database");
-                    }*/
+
                 }
             }
 
@@ -233,7 +279,8 @@ public class AllMapsActivity extends AppCompatActivity implements OnMapReadyCall
                 //データ取得失敗
                 Toast.makeText(AllMapsActivity.this,"Postテーブルのデータ取得に失敗しました",Toast.LENGTH_SHORT).show();
             }
-        });
+        });*/
+
     }
 
     public void StoragePicked(String image,String title,String detail,String comment,LatLng location){
